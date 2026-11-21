@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Escala OP">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Escala Operação</title>
+<!-- Fontes: Inter (textos) e Outfit (títulos e números). Ficam guardadas para uso offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap">
+<script>
+// Tema: 'auto' (segue o celular), 'light' ou 'dark'. Aplicado antes de desenhar a tela.
+function themePref(){return localStorage.getItem('escala-tema')||'auto'}
+function applyTheme(){
+  const p=themePref(),dark=p==='dark'||(p==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?'#0b1120':'#f1f5f9';
+}
+applyTheme();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themePref()==='auto')applyTheme()});
+</script>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--ln:#e2e8f0;--acc:#2563eb;
+--d-bg:#fde68a;--d-tx:#78350f;--n-bg:#1e3a8a;--n-tx:#fff;--f-bg:#bbf7d0;--f-tx:#14532d;
+--hol:#dc2626;--vac:#0d9488}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b1120;--card:#152036;--tx:#e2e8f0;--mu:#94a3b8;--ln:#26324a;--acc:#60a5fa;
+--d-bg:#b45309;--d-tx:#fff7ed;--n-bg:#3346c9;--n-tx:#fff;--f-bg:#166534;--f-tx:#dcfce7;--hol:#f87171;--vac:#2dd4bf}
+*{box-sizing:border-box}
+:root{--f-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--f-head:"Outfit","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--ease:cubic-bezier(.2,.8,.2,1)}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 var(--f-body);letter-spacing:-.005em;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+h1,h2,.big,.big2,.mid,.tmh,.teams button,.stats b,.cell .s,.cell .n,.sc b,.calhead h2,.navb,.pill{font-family:var(--f-head);letter-spacing:-.01em}
+table,.cell,.sc,.stats,.bi,.bi2,.strip{font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer;transition:transform .14s var(--ease),background-color .25s,color .25s,box-shadow .25s}
+button:active{transform:scale(.96)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+header h1{font-family:var(--f-head);font-size:20px;font-weight:700;margin:0;letter-spacing:-.02em}
+header small{display:block;font-size:12px;color:var(--mu);font-weight:500}
+.chip{border:0;background:var(--card);color:var(--tx);padding:8px 14px;border-radius:999px;font-weight:700;box-shadow:0 1px 3px #0002}
+main{padding:0 12px calc(92px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mu);padding:7px 0 9px;font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button .i{font-size:21px;line-height:1;padding:4px 16px;border-radius:999px;transition:background-color .3s var(--ease),transform .3s var(--ease)}
+nav button.on{color:var(--acc);font-weight:700}
+nav button.on .i{background:color-mix(in srgb,var(--acc) 18%,transparent);animation:pop .4s var(--ease)}
+@keyframes pop{0%{transform:scale(.85)}45%{transform:scale(1.18) translateY(-2px)}100%{transform:none}}
+.card{background:var(--card);border-radius:18px;padding:14px 15px;margin:10px 0;box-shadow:0 1px 2px #0000000a,0 4px 16px #0000000a;border:0;color:inherit;text-align:left;width:100%;font:inherit;display:block}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu);font-weight:700}
+.sub{font-size:14px;color:var(--mu);margin-top:4px}
+.hero.D{background:var(--d-bg);color:var(--d-tx)}.hero.N{background:var(--n-bg);color:var(--n-tx)}
+.hero .lbl,.hero .sub{color:inherit;opacity:.85}
+.big{font-size:42px;font-weight:800;line-height:1.1;margin:4px 0}
+.mid{font-size:24px;font-weight:800}
+.hs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.hs>div+div{border-left:1px solid currentColor;padding-left:12px;opacity:.9}
+.hsl{font-size:12px;font-weight:700;opacity:.85}
+.big2{font-size:30px;font-weight:800;line-height:1.1;margin:2px 0}
+.hs>div:first-child .big2{font-size:34px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2 .card{margin:0}
+.mini.D{border-left:6px solid var(--d-bg)}.mini.N{border-left:6px solid var(--n-bg)}
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:800}
+.D{--c-bg:var(--d-bg);--c-tx:var(--d-tx)}.N{--c-bg:var(--n-bg);--c-tx:var(--n-tx)}.F{--c-bg:var(--f-bg);--c-tx:var(--f-tx)}.V{--c-bg:var(--vac);--c-tx:#fff}
+.pill,.cell,.tc,.sc{background:var(--c-bg);color:var(--c-tx)}
+.mine{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:18px}
+.strip{display:flex;gap:4px;overflow-x:auto;margin-top:10px;padding-bottom:4px}
+.sc{flex:0 0 42px;border-radius:10px;text-align:center;padding:4px 0;font-size:11px;font-weight:600;border:0}
+.sc b{display:block;font-size:16px}
+.sc.today{outline:3px solid var(--acc);outline-offset:-3px}
+.people{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pp{background:#0001;padding:3px 10px;border-radius:999px;font-size:13px}
+.hero .pp{background:#ffffff33}
+.badge{font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;color:#fff;margin-left:4px;vertical-align:middle}
+.b-me{background:var(--acc)}
+.ppl{font-size:14px;margin-top:6px}
+.pk{font-weight:700;opacity:.85}
+.small .ppl{font-size:12px;margin-top:4px}
+.tmh{display:flex;align-items:center;gap:6px;font-size:18px}
+.chipb{border:0;color:var(--tx);font-size:14px;padding:6px 12px}
+.addp{border:1px dashed var(--acc);color:var(--acc);background:none!important;font-weight:700;font-size:14px;padding:6px 12px}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin:6px 0}
+.calhead h2{margin:0;font-size:20px}
+.navb{border:0;background:var(--card);color:var(--tx);width:44px;height:44px;border-radius:12px;font-size:20px;box-shadow:0 1px 3px #0002}
+.wk,.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wk div{text-align:center;font-size:12px;color:var(--mu);font-weight:700;padding:4px 0}
+.cell{border:0;border-radius:10px;aspect-ratio:1/1.15;padding:3px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;position:relative}
+.cell .top{display:flex;justify-content:space-between;align-items:center;width:100%}
+.cell .n{font-size:12px;font-weight:700;padding-left:2px}
+.cell .bi{font-size:9px;font-weight:700;opacity:.75;padding-right:2px}
+.cell .s{font-size:15px;font-weight:800;line-height:1;white-space:nowrap;letter-spacing:-1px}
+.cell .h{font-size:9px;font-weight:600;opacity:.85;display:flex;align-items:center;gap:2px;line-height:1.2}
+td small{display:block;font-size:10px;font-weight:600;opacity:.8}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;text-align:center;font-size:12px;color:var(--mu)}
+.stats b{display:block;font-size:20px;color:var(--tx)}
+.blk{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--tx);text-align:left;padding:8px 0;border-top:1px solid var(--ln);font-size:14px}
+.blk:first-of-type{border-top:0}
+.blk .pill{min-width:92px;text-align:center;font-size:13px}
+.shh{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.secb{margin-top:10px;padding-top:8px;border-top:1px solid var(--ln)}
+.bi2{font-size:12px;font-weight:700;background:var(--c-bg);color:var(--c-tx);padding:2px 8px;border-radius:999px}
+.cell.today{outline:3px solid var(--acc);outline-offset:-3px}
+.cell.hol .n{color:#fff;background:var(--hol);border-radius:6px;padding:0 4px}
+.dots{display:flex;gap:3px;height:7px}
+.dot{width:7px;height:7px;border-radius:50%}
+.d-vac{background:var(--vac)}.d-hol{background:var(--hol)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mu);margin:10px 2px}
+.legend span{display:flex;align-items:center;gap:4px}
+.blank{visibility:hidden}
+table{width:100%;border-collapse:separate;border-spacing:3px}
+th{font-size:13px;color:var(--mu);padding:6px 0}
+th.me{color:var(--acc)}
+td{text-align:center;font-weight:700;border-radius:8px;padding:7px 0;font-size:14px}
+td.dt{text-align:left;font-weight:600;padding-left:6px;background:var(--card);white-space:nowrap}
+td.dt.hol{color:var(--hol)}
+tr.today td.dt{outline:2px solid var(--acc)}
+td.tc.me{box-shadow:inset 0 0 0 2px var(--acc)}
+.segs{display:flex;gap:6px;overflow-x:auto;margin:8px 0}
+.segs button{border:0;background:var(--card);color:var(--tx);padding:8px 14px;border-radius:999px;white-space:nowrap;font-weight:600}
+.segs button.on{background:var(--acc);color:#fff}
+.item{display:flex;gap:10px;align-items:flex-start}
+.item .ic{font-size:22px}
+.item .bd{flex:1;min-width:0}
+.item .tt{font-weight:700}
+.item.past{opacity:.55}
+.ib{border:0;background:none;font-size:18px;padding:4px;color:var(--mu)}
+.add{width:100%;border:2px dashed var(--ln);background:none;color:var(--acc);padding:12px;border-radius:14px;font-weight:700;margin:6px 0}
+.grp{margin-top:14px}
+#ov{position:fixed;inset:0;background:#0008;z-index:20;opacity:0;pointer-events:none;transition:opacity .3s var(--ease);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#ov.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;z-index:21;padding:8px 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .38s cubic-bezier(.22,1,.36,1);max-width:640px;margin:0 auto;box-shadow:0 -8px 30px #0003}
+#sheet.open{transform:none}
+#sheet.open:not(.still)>*:not(.grab){animation:inF .4s var(--ease) both}
+#sheet.open>*:nth-child(3){animation-delay:.04s}#sheet.open>*:nth-child(4){animation-delay:.08s}#sheet.open>*:nth-child(5){animation-delay:.12s}#sheet.open>*:nth-child(n+6){animation-delay:.16s}
+/* ===== animações ===== */
+@keyframes inR{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes inF{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#view.a-r>*{animation:inR .38s var(--ease) both}
+#view.a-l>*{animation:inL .38s var(--ease) both}
+#view.a-f>*{animation:inF .34s var(--ease) both}
+#view[class*=a-]>*:nth-child(2){animation-delay:.04s}#view[class*=a-]>*:nth-child(3){animation-delay:.08s}
+#view[class*=a-]>*:nth-child(4){animation-delay:.12s}#view[class*=a-]>*:nth-child(5){animation-delay:.16s}
+#view[class*=a-]>*:nth-child(n+6){animation-delay:.2s}
+.m-r{animation:inR .32s var(--ease) both}.m-l{animation:inL .32s var(--ease) both}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--acc) 0%,transparent)}}
+.cell.today,.sc.today{animation:glow 2.4s ease-in-out infinite}
+html.theming,html.theming *{transition:background-color .4s ease,color .4s ease,border-color .4s ease!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+#sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--ln);margin:4px auto 10px}
+#sheet h2{margin:4px 0 10px;font-size:20px}
+.shift{border-radius:14px;padding:12px;margin:8px 0;background:var(--card);border-left:6px solid var(--c-bg)}
+.hol-b{background:var(--hol);color:#fff;padding:6px 12px;border-radius:10px;font-weight:700;display:inline-block}
+.btns{display:grid;gap:8px;margin-top:12px}
+.btns button,.pri,.sec{border:0;border-radius:12px;padding:13px;font-weight:700;width:100%}
+.pri{background:var(--acc);color:#fff}
+.sec{background:var(--card);color:var(--tx);box-shadow:0 1px 3px #0002}
+.danger{color:var(--hol)!important}
+form label,.field{display:block;margin:10px 0;font-size:14px;font-weight:600;color:var(--mu)}
+[hidden]{display:none!important}
+form input:not([type=radio]):not([type=checkbox]),form select,form textarea{display:block;width:100%;margin-top:4px;padding:12px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font:inherit;font-size:16px}
+form textarea{min-height:70px}
+.seg2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.seg2 label{margin:0}
+.seg2 input{display:none}
+.seg2 span{display:block;padding:10px 14px;border-radius:999px;background:var(--card);color:var(--tx);border:1px solid var(--ln);font-weight:700}
+.seg2 input:checked+span{background:var(--acc);color:#fff;border-color:var(--acc)}
+.teams{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.teams button{border:0;padding:18px 0;border-radius:14px;font-size:24px;font-weight:800;background:var(--card);color:var(--tx);box-shadow:0 1px 3px #0002}
+.teams button.on{background:var(--acc);color:#fff}
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.themes button{border:0;padding:12px 0;border-radius:14px;background:var(--card);color:var(--tx);font-weight:700;font-size:14px;box-shadow:0 1px 3px #0002;display:flex;flex-direction:column;align-items:center;gap:2px}
+.themes button span{font-size:22px}
+.themes button.on{background:var(--acc);color:#fff}
+.themes.langs{grid-template-columns:1fr 1fr}
+.d-task{background:#8b5cf6}
+.ho-cur{border-left:6px solid var(--c-bg)}
+.tsub{font-size:12px;font-weight:700;color:var(--mu);margin:10px 0 0}
+.twrap{display:flex;align-items:center;gap:4px;border-top:1px solid var(--ln)}
+.twrap:first-child{border-top:0}
+.twrap .task{border-top:0;flex:1}
+.hob{font-size:14px;opacity:.7}
+.chk{display:flex!important;align-items:center;gap:10px;color:var(--tx)!important;font-weight:600}
+.chk input{width:22px;height:22px;accent-color:var(--acc);flex:0 0 22px;margin:0}
+.hol-i{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--ln)}
+.hol-i:first-child,.shh+.hol-i{border-top:0}
+.hol-i .ic{font-size:20px}.hol-i .bd{flex:1;min-width:0;cursor:pointer}.hol-i .tt{font-weight:700;font-size:14.5px}
+.hol-i.past{opacity:.55}
+.wa-prev{white-space:pre-wrap;word-break:break-word;background:var(--card);border:1px dashed var(--ln);border-radius:14px;padding:12px;font:13px/1.5 var(--f-body);margin:6px 0 0;user-select:text;-webkit-user-select:text;max-height:320px;overflow:auto}
+.saved{font-size:12px;color:var(--vac);font-weight:600;min-height:16px;margin-top:4px}
+.fl{margin:6px 0!important}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#111827;color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px #0005;opacity:0;pointer-events:none;transition:opacity .25s,transform .3s var(--ease);z-index:40;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.rowb{display:flex;align-items:center;gap:12px;width:100%;border:0;background:var(--card);color:var(--tx);text-align:left;padding:12px 14px;border-radius:16px;margin-top:8px;box-shadow:0 1px 3px #0002}
+.rowb .chev{margin-left:auto;font-size:26px;color:var(--mu);line-height:1}
+.backb{border:0;background:none;color:var(--acc);font-weight:700;padding:2px 0 6px;font-size:15px}
+.T{--c-bg:#8b5cf6}
+.task{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--tx);text-align:left;padding:9px 2px;border-top:1px solid var(--ln);font-size:15px}
+.shh+.task,.hint+.task{border-top:0}
+.task .ck{flex:0 0 24px;height:24px;border-radius:8px;border:2px solid var(--ln);display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;transition:background-color .25s,border-color .25s,transform .25s var(--ease)}
+.task.done .ck{background:#8b5cf6;border-color:#8b5cf6;animation:pop .35s var(--ease)}
+.task.done .tk{text-decoration:line-through;opacity:.55}
+.task .rp{font-size:12px}
+.linkb{border:0;background:none;color:var(--acc);font-weight:700;padding:8px 2px 0;font-size:14px}
+.acts{display:flex;flex-direction:column;gap:2px}
+.acts a.ib{text-decoration:none}
+.cal-b{display:block;text-align:center;text-decoration:none;margin-top:8px;box-sizing:border-box}
+.contact{background:var(--card);border-radius:16px;padding:14px;margin-top:8px;box-shadow:0 1px 3px #0002}
+.ct-h{display:flex;align-items:center;gap:10px}
+.ct-ic{font-size:26px;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:color-mix(in srgb,#25d366 18%,transparent)}
+.wa{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:12px;border-radius:12px;background:#25d366;color:#fff;font-weight:700;text-decoration:none;transition:transform .14s var(--ease),filter .2s}
+.wa:active{transform:scale(.97);filter:brightness(.95)}
+.help-link{display:block;text-align:center;margin:18px 0 6px;color:var(--mu);font-size:13px;font-weight:600;text-decoration:none;padding:8px}
+.help-link:active{color:var(--acc)}
+.hint{font-size:13px;color:var(--mu);margin-top:-4px}
+.empty{text-align:center;color:var(--mu);padding:20px 10px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="htitle">Escala Operação</span><small id="hsub">Turnos 4x4 · Dia/Noite</small></h1>
+  <button class="chip" id="teamChip" onclick="openSettings()">⚙️ Turma ?</button>
+</header>
+<main id="view"></main>
+<nav>
+  <button data-v="hoje" onclick="go('hoje')"><span class="i">🏠</span><span class="nl"></span></button>
+  <button data-v="cal" onclick="go('cal')"><span class="i">📅</span><span class="nl"></span></button>
+  <button data-v="eq" onclick="go('eq')"><span class="i">👥</span><span class="nl"></span></button>
+  <button data-v="reg" onclick="go('reg')"><span class="i">📝</span><span class="nl"></span></button>
+</nav>
+<div id="ov" onclick="closeSheet()"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="sheet"></div>
+
+<script>
+/* ===================== IDIOMA (PT / EN) ===================== */
+const LANG_KEY='escala-idioma';
+let LANG=localStorage.getItem(LANG_KEY)||'pt';
+const pl=(n,a,b)=>n+' '+(n===1?a:b);
+const L={
+pt:{
+  title:'Escala Operação',subtitle:'Turnos 4x4 · Dia/Noite',team:'Turma',
+  sec:{op:'Operação',man:'Manutenção'},secS:{op:'Op',man:'Man'},sector:'Setor',
+  withOp:x=>`com Op ${x}`,workingWith:x=>`Trabalhando com a Operação turma ${x}`,
+  manBlock:(a,b)=>`2 dias com Op ${a} + 2 dias com Op ${b}`,chooseSecTeam:'Escolha seu setor e sua turma.',
+  welcomeSec:'Bem-vindo! Qual é o seu setor?',
+  nextHols:'Próximos feriados',seeAll:'Ver todos',
+  typeFuture:'Tarefas futuras',typeDaily:'Tarefas diárias',typeFuture1:'Tarefa futura',typeDaily1:'Tarefa diária',taskType:'Tipo',
+  dailyHint:'Rotina de todo turno. Marque quando fizer: no turno seguinte ela volta desmarcada.',futureHint:'Tem data marcada e pode repetir.',
+  noDaily:'Nenhuma tarefa diária. Ex.: pesagem do material.',
+  phFuture:'Ex.: Dia de manutenção',phDaily:'Ex.: Pesagem do material',
+  hoTasks:'Tarefas do turno',hoTasksHint:'Marque as que você fez. Só as marcadas entram no relatório.',hoNoDaily:'Nenhuma tarefa diária cadastrada.',
+  
+  tabHo:'🗒️ Troca de turno',hoTitle:'Troca de turno',hoTitleUp:'TROCA DE TURNO',hoShift:'Turno',hoPreview:'Prévia da mensagem',
+  hoCopy:'Copiar texto',hoSendWa:'Enviar no WhatsApp',hoCopied:'Texto copiado! É só colar no WhatsApp.',hoCopyFail:'Não consegui copiar. Segure o dedo na prévia para copiar.',
+  hoSavedAt:h=>`Salvo automaticamente ✓ ${h}`,hoCurrent:'Turno atual',hoFill:'Preencher troca de turno',hoContinue:'Continuar troca de turno',hoStarted:'em andamento',
+  hoHistory:'Trocas de turno anteriores',hoEmpty:'Nenhuma troca de turno salva ainda.',hoNothing:'Nada a relatar',hoNone:'Sem observações',
+  hoHint:'Vá preenchendo durante o turno, o app salva sozinho. Na troca, copie e cole no WhatsApp.',hoTo:'Recebe',
+  ho:{attention:{t:'Pontos de atenção',ph:'Um item por linha'},maint:{t:'Atividades de manutenção / paliativos',ph:'Um item por linha'},cont:{t:'Dar continuidade',ph:'O que o próximo turno precisa continuar (um por linha)'},obs:{t:'Observação',ph:'Texto livre'}},
+  teamsLbl:'Turmas',teamsCfgT:'Configurar turmas',teamsCfgD:'Supervisores e sala de controle de cada turma',
+  tabTasks:'✅ Tarefas',todayTasks:'Tarefas de hoje',nextTask:'Próxima tarefa',tasksT:'Tarefas',
+  addTask:'+ Nova tarefa',addTaskDay:'✅ Adicionar tarefa',noTasks:'Nenhuma tarefa programada.',
+  taskNewT:'Nova tarefa',taskEditT:'Editar tarefa',taskTitle:'O que fazer',taskPh:'Ex.: Entregar relatório do turno',
+  time:'Horário (opcional)',repeat:'Repetir',rep:{none:'Não repete',daily:'Todo dia',weekly:'Toda semana',monthly:'Todo mês',cycle:'A cada ciclo da escala (16 dias)'},
+  saveTask:'Salvar tarefa',addCal:'📅 Lembrete na agenda',
+  tasksHint:'Suas tarefas ficam só no seu aparelho. Toque em 📅 para criar um lembrete no Google Agenda e receber aviso no celular.',
+  nextOn:d=>`Próxima: ${d}`,doneOf:(a,b)=>`${a} de ${b} feitas`,tapToDone:'Toque para marcar como feita',
+  helpT:'Dúvidas ou melhorias',helpD:'Encontrou um erro, tem uma dúvida ou uma ideia para o app? Fale comigo pelo WhatsApp.',
+  helpBtn:'Falar no WhatsApp',helpShort:'Dúvidas ou melhorias? Fale com o Enzo',
+  helpMsg:who=>`Olá Enzo! Tenho uma dúvida/sugestão sobre o app Escala Operação${who?' ('+who+')':''}: `,
+  nav:{hoje:'Hoje',cal:'Minha escala',eq:'Turmas',reg:'Registros'},
+  sn:{D:'Dia',N:'Noite',F:'Folga',V:'Férias'},offL:'F',
+  wd:['dom','seg','ter','qua','qui','sex','sáb'],
+  mes:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+  hr:{D:'06h–18h',N:'18h–06h'},h06:'06h',h18:'18h',cellOff:'folga',cellVac:'férias',
+  days:n=>pl(n,'dia','dias'),
+  onDutyNow:'Em serviço agora',todayLbl:s=>`${s} hoje`,myTeam:'Minha turma',
+  onVac:'De férias',until:d=>`até ${d}`,
+  backToWork:(sh,d,n)=>`Volta ao trabalho: <b>${sh}</b> em ${d} · em ${pl(n,'dia','dias')}`,
+  dayOf:p=>`${p}º de 4 dias`,
+  next:(sh,d,n)=>`Próximo: <b>${sh}</b> a partir de ${d} · em ${pl(n,'dia','dias')}`,
+  vacIn:(n,a,b)=>`🏖️ Férias em <b>${pl(n,'dia','dias')}</b> (${a} a ${b})`,
+  today:'Hoje',holiday:'Feriado',nextHol:'Próximo feriado',you:'Você',
+  chooseTeam:'Escolha sua turma no botão ⚙️ acima.',
+  myVac:'Minhas férias',blockDay:'1/4 = dia do bloco',redHol:'Data vermelha = feriado',
+  monthSummary:'Resumo do mês',stD:'dias',stN:'noites',stF:'folgas',stW:'trabalho',
+  vacDaysMonth:n=>`🏖️ ${pl(n,'dia','dias')} de férias neste mês`,
+  monthDetails:'Detalhes do mês',detD:'Entrada 06h · saída 18h',
+  detN:d=>`Entrada 18h · saída 06h do dia seguinte (última saída ${d})`,
+  detFN:d=>`Saída da noite às 06h de ${d}`,detFD:'Após o turno do dia',
+  range:(a,b)=>`${a} a ${b}`,
+  markVac:'🏖️ Marcar minhas férias',backToday:'Voltar para hoje',
+  tabTeams:'👥 Turmas',tabVac:'🏖️ Minhas férias',tabHol:'🎉 Feriados',
+  teamsHint:'Configure o supervisor e a sala de controle de cada turma. Pode ter mais de um em cada.',
+  teamsHintMan:'Configure os supervisores de cada turma de manutenção. Pode ter mais de um.',
+  mine:'MINHA',todayIs:s=>`Hoje: ${s}`,add:'+ Adicionar',
+  role:{sup:{t:'Supervisor',pl:'Supervisores'},sala:{t:'Sala de controle',pl:'Sala de controle'}},
+  notConfigured:'Ainda não configurado.',
+  addVac:'+ Marcar minhas férias',vacHint:'Suas férias ficam só no seu aparelho e aparecem no seu calendário.',
+  noVac:'Nenhuma férias marcada.',vDone:'Concluída',vNow:n=>`Em andamento · faltam ${pl(n,'dia','dias')}`,vStarts:n=>`Começa em ${pl(n,'dia','dias')}`,
+  vTitle:(a,b)=>`${a} até ${b}`,calDays:n=>`${n} dias corridos`,covered:n=>`${n} turnos cobertos`,coveredW:n=>`${n} turnos de trabalho cobertos`,
+  addHol:'+ Feriado municipal/estadual ou da empresa',
+  youTeam:(tm,s)=>`Você (${tm}): ${s}`,ordOf4:n=>`${n}º de 4`,
+  timesD:'Entrada <b>06h00</b> · Saída <b>18h00</b>',timesN:(a,b)=>`Entrada <b>18h00</b> (${a}) · Saída <b>06h00</b> (${b})`,
+  firstD:'Primeiro dia — voltando da folga',firstN:'Primeira noite — voltando da folga',
+  lastD:'Último dia — depois entra de folga',lastN:'Última noite — depois entra de folga',
+  offDay:n=>`${n}º dia de folga de 4`,leftNight:' · saiu da noite às 06h',
+  backOn:(s,d,h)=>`Volta de <b>${s}</b> em ${d} às ${h}`,
+  youOnVac:'🏖️ Você está de férias',vacStartsHere:'🏖️ Minhas férias começam aqui',markHol:'📌 Marcar feriado',
+  edit:'Editar',addW:'Adicionar',name:'Nome',save:'Salvar',remove:'Remover',removeQ:(n,tm)=>`Remover ${n} da Turma ${tm}?`,
+  vacEditT:'Editar minhas férias',vacNewT:'Marcar minhas férias',firstDay:'Primeiro dia',lastDay:'Último dia',
+  note:'Observação',optional:'Opcional',saveVac:'Salvar férias',del:'Excluir',endBefore:'⚠️ O último dia é antes do primeiro.',
+  delQ:'Excluir este registro?',holTitle:'Marcar feriado',date:'Data',holPh:'Ex.: Aniversário da cidade',
+  natAuto:'Feriados nacionais já aparecem automaticamente.',saveHol:'Salvar feriado',
+  welcome:'Bem-vindo! Qual é a sua turma?',settings:'Configurações',appearance:'Aparência',
+  light:'Claro',dark:'Noturno',auto:'Automático',autoHint:'Automático segue o modo claro/escuro do celular.',
+  language:'Idioma',close:'Fechar',cycle:'Escala 4x4 · ciclo de 16 dias: 4 dias, 4 folgas, 4 noites, 4 folgas.',
+  hol:{ny:'Confraternização Universal',tir:'Tiradentes',lab:'Dia do Trabalho',ind:'Independência do Brasil',apa:'N. Sra. Aparecida',fin:'Finados',rep:'Proclamação da República',cn:'Consciência Negra',xmas:'Natal',carn:'Carnaval (ponto facultativo)',gf:'Sexta-feira Santa',cc:'Corpus Christi (ponto facultativo)'}
+},
+en:{
+  title:'Operations Schedule',subtitle:'4x4 Shifts · Day/Night',team:'Team',
+  sec:{op:'Operations',man:'Maintenance'},secS:{op:'Ops',man:'Mnt'},sector:'Department',
+  withOp:x=>`with Ops ${x}`,workingWith:x=>`Working with Operations team ${x}`,
+  manBlock:(a,b)=>`2 days with Ops ${a} + 2 days with Ops ${b}`,chooseSecTeam:'Choose your department and team.',
+  welcomeSec:'Welcome! Which department are you in?',
+  nextHols:'Upcoming holidays',seeAll:'See all',
+  typeFuture:'Scheduled tasks',typeDaily:'Daily tasks',typeFuture1:'Scheduled task',typeDaily1:'Daily task',taskType:'Type',
+  dailyHint:'Routine for every shift. Tick it when done: it comes back unticked next shift.',futureHint:'Has a set date and can repeat.',
+  noDaily:'No daily tasks. E.g.: material weighing.',
+  phFuture:'E.g.: Maintenance day',phDaily:'E.g.: Material weighing',
+  hoTasks:'Shift tasks',hoTasksHint:'Tick the ones you did. Only ticked tasks go in the report.',hoNoDaily:'No daily tasks yet.',
+  
+  tabHo:'🗒️ Handover',hoTitle:'Shift handover',hoTitleUp:'SHIFT HANDOVER',hoShift:'Shift',hoPreview:'Message preview',
+  hoCopy:'Copy text',hoSendWa:'Send on WhatsApp',hoCopied:'Text copied! Just paste it on WhatsApp.',hoCopyFail:'Could not copy. Long-press the preview to copy.',
+  hoSavedAt:h=>`Saved automatically ✓ ${h}`,hoCurrent:'Current shift',hoFill:'Fill in handover',hoContinue:'Continue handover',hoStarted:'in progress',
+  hoHistory:'Previous handovers',hoEmpty:'No handovers saved yet.',hoNothing:'Nothing to report',hoNone:'No notes',
+  hoHint:'Fill it in during the shift, it saves by itself. At handover, copy and paste it on WhatsApp.',hoTo:'Handing to',
+  ho:{attention:{t:'Points of attention',ph:'One item per line'},maint:{t:'Maintenance / temporary fixes',ph:'One item per line'},cont:{t:'To be continued',ph:'What the next shift needs to carry on (one per line)'},obs:{t:'Notes',ph:'Free text'}},
+  teamsLbl:'Teams',teamsCfgT:'Team setup',teamsCfgD:'Supervisors and control room for each team',
+  tabTasks:'✅ Tasks',todayTasks:'Today’s tasks',nextTask:'Next task',tasksT:'Tasks',
+  addTask:'+ New task',addTaskDay:'✅ Add task',noTasks:'No scheduled tasks.',
+  taskNewT:'New task',taskEditT:'Edit task',taskTitle:'What to do',taskPh:'E.g.: Hand in shift report',
+  time:'Time (optional)',repeat:'Repeat',rep:{none:'Does not repeat',daily:'Every day',weekly:'Every week',monthly:'Every month',cycle:'Every schedule cycle (16 days)'},
+  saveTask:'Save task',addCal:'📅 Calendar reminder',
+  tasksHint:'Your tasks are stored only on this device. Tap 📅 to create a Google Calendar reminder and get a phone alert.',
+  nextOn:d=>`Next: ${d}`,doneOf:(a,b)=>`${a} of ${b} done`,tapToDone:'Tap to mark as done',
+  helpT:'Questions or suggestions',helpD:'Found a bug, have a question or an idea for the app? Message me on WhatsApp.',
+  helpBtn:'Message on WhatsApp',helpShort:'Questions or ideas? Talk to Enzo',
+  helpMsg:who=>`Hi Enzo! I have a question/suggestion about the Operations Schedule app${who?' ('+who+')':''}: `,
+  nav:{hoje:'Today',cal:'My schedule',eq:'Teams',reg:'Records'},
+  sn:{D:'Day',N:'Night',F:'Off',V:'Vacation'},offL:'O',
+  wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  mes:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  hr:{D:'06:00–18:00',N:'18:00–06:00'},h06:'06:00',h18:'18:00',cellOff:'off',cellVac:'vac.',
+  days:n=>pl(n,'day','days'),
+  onDutyNow:'On duty now',todayLbl:s=>`${s} today`,myTeam:'My team',
+  onVac:'On vacation',until:d=>`until ${d}`,
+  backToWork:(sh,d,n)=>`Back to work: <b>${sh}</b> on ${d} · in ${pl(n,'day','days')}`,
+  dayOf:p=>`day ${p} of 4`,
+  next:(sh,d,n)=>`Next: <b>${sh}</b> from ${d} · in ${pl(n,'day','days')}`,
+  vacIn:(n,a,b)=>`🏖️ Vacation in <b>${pl(n,'day','days')}</b> (${a} to ${b})`,
+  today:'Today',holiday:'Holiday',nextHol:'Next holiday',you:'You',
+  chooseTeam:'Choose your team with the ⚙️ button above.',
+  myVac:'My vacation',blockDay:'1/4 = day of block',redHol:'Red date = holiday',
+  monthSummary:'Month summary',stD:'days',stN:'nights',stF:'days off',stW:'work',
+  vacDaysMonth:n=>`🏖️ ${pl(n,'vacation day','vacation days')} this month`,
+  monthDetails:'Month details',detD:'Start 06:00 · end 18:00',
+  detN:d=>`Start 18:00 · end 06:00 next day (last end ${d})`,
+  detFN:d=>`Off after night shift ends 06:00 on ${d}`,detFD:'After the day shift',
+  range:(a,b)=>`${a} to ${b}`,
+  markVac:'🏖️ Set my vacation',backToday:'Back to today',
+  tabTeams:'👥 Teams',tabVac:'🏖️ My vacation',tabHol:'🎉 Holidays',
+  teamsHint:'Set the supervisor and control room for each team. Each can have more than one.',
+  teamsHintMan:'Set the supervisors for each maintenance team. You can add more than one.',
+  mine:'MINE',todayIs:s=>`Today: ${s}`,add:'+ Add',
+  role:{sup:{t:'Supervisor',pl:'Supervisors'},sala:{t:'Control room',pl:'Control room'}},
+  notConfigured:'Not set yet.',
+  addVac:'+ Set my vacation',vacHint:'Your vacation is stored only on this device and shows on your calendar.',
+  noVac:'No vacation set.',vDone:'Finished',vNow:n=>`In progress · ${pl(n,'day','days')} left`,vStarts:n=>`Starts in ${pl(n,'day','days')}`,
+  vTitle:(a,b)=>`${a} to ${b}`,calDays:n=>`${n} calendar days`,covered:n=>`${n} shifts covered`,coveredW:n=>`${n} work shifts covered`,
+  addHol:'+ Local or company holiday',
+  youTeam:(tm,s)=>`You (${tm}): ${s}`,ordOf4:n=>`${n} of 4`,
+  timesD:'Start <b>06:00</b> · End <b>18:00</b>',timesN:(a,b)=>`Start <b>18:00</b> (${a}) · End <b>06:00</b> (${b})`,
+  firstD:'First day — back from days off',firstN:'First night — back from days off',
+  lastD:'Last day — days off next',lastN:'Last night — days off next',
+  offDay:n=>`day off ${n} of 4`,leftNight:' · left night shift at 06:00',
+  backOn:(s,d,h)=>`Back on <b>${s}</b> on ${d} at ${h}`,
+  youOnVac:'🏖️ You are on vacation',vacStartsHere:'🏖️ My vacation starts here',markHol:'📌 Mark holiday',
+  edit:'Edit',addW:'Add',name:'Name',save:'Save',remove:'Remove',removeQ:(n,tm)=>`Remove ${n} from Team ${tm}?`,
+  vacEditT:'Edit my vacation',vacNewT:'Set my vacation',firstDay:'First day',lastDay:'Last day',
+  note:'Note',optional:'Optional',saveVac:'Save vacation',del:'Delete',endBefore:'⚠️ The last day is before the first.',
+  delQ:'Delete this record?',holTitle:'Mark holiday',date:'Date',holPh:'E.g.: City anniversary',
+  natAuto:'National holidays are added automatically.',saveHol:'Save holiday',
+  welcome:'Welcome! Which team are you on?',settings:'Settings',appearance:'Appearance',
+  light:'Light',dark:'Dark',auto:'Automatic',autoHint:'Automatic follows your phone’s light/dark mode.',
+  language:'Language',close:'Close',cycle:'4x4 schedule · 16-day cycle: 4 days, 4 off, 4 nights, 4 off.',
+  hol:{ny:'New Year’s Day',tir:'Tiradentes Day',lab:'Labour Day',ind:'Independence Day',apa:'Our Lady of Aparecida',fin:'All Souls’ Day',rep:'Republic Day',cn:'Black Consciousness Day',xmas:'Christmas',carn:'Carnival (optional)',gf:'Good Friday',cc:'Corpus Christi (optional)'}
+}};
+function t(k,...a){const v=L[LANG][k]??L.pt[k];return typeof v==='function'?v(...a):v}
+function setLang(k,first){LANG=k;localStorage.setItem(LANG_KEY,k);render();openSettings(first)}
+
+/* ===================== ESCALA ===================== */
+// Referência: 23/11/2026 → C entra de DIA, D entra de NOITE, A e B entram de FOLGA
+// (A saiu da noite e entra de dia em 27/11; B saiu do dia e entra de noite em 27/11)
+// Ciclo de 16 dias: posições 0-3 DIA | 4-7 FOLGA | 8-11 NOITE | 12-15 FOLGA
+const REF = dayNum(2026,10,23);
+const OFF = {A:12, B:4, C:0, D:8};
+const TEAMS = ['A','B','C','D'];
+const ICO = {D:'☀️',N:'🌙',F:'🟢',V:'🏖️'};
+const SN = s => t('sn')[s];                       // nome do turno
+const HR = s => t('hr')[s];                       // horário do turno
+const LT = s => s==='F'?t('offL'):s;              // letra do turno
+const SNI = s => SN(s)+' '+ICO[s];                // nome com ícone à direita
+const CI = s => s==='V'?'🏖️':s==='F'?LT('F'):s+ICO[s];  // versão curta para quadradinhos
+const WD = () => t('wd');
+
+function mod(a,n){return ((a%n)+n)%n}
+function dayNum(y,m,d){return Math.round(Date.UTC(y,m,d)/864e5)}
+function todayDn(){const d=new Date();return dayNum(d.getFullYear(),d.getMonth(),d.getDate())}
+function iso(dn){return new Date(dn*864e5).toISOString().slice(0,10)}
+function fromIso(s){const [y,m,d]=s.split('-').map(Number);return dayNum(y,m-1,d)}
+function ymd(dn){const d=new Date(dn*864e5);return {y:d.getUTCFullYear(),m:d.getUTCMonth(),d:d.getUTCDate(),w:d.getUTCDay()}}
+function pos(team,dn){return mod(dn-REF+OFF[team],16)}
+function status(team,dn){const p=pos(team,dn);return p<4?'D':p<8?'F':p<12?'N':'F'}
+function teamOn(shift,dn){return TEAMS.find(x=>status(x,dn)===shift)}
+// MANUTENÇÃO: também 4x4, deslocada 2 dias. Cada turma de manutenção pega os 2 últimos
+// dias de uma turma de operação e os 2 primeiros da turma seguinte (ordem C→A→D→B):
+//   Man A = fim da Op D + início da Op B   (ex.: dia 03-04/12 com Op D, 05-06/12 com Op B)
+//   Man B = fim da Op A + início da Op D
+//   Man C = fim da Op B + início da Op C
+//   Man D = fim da Op C + início da Op A
+const MAN_FROM={A:'D',B:'A',C:'B',D:'C'};   // turma de operação cujo fim a manutenção pega
+function posS(sec,team,dn){return sec==='man'?pos(MAN_FROM[team],dn-2):pos(team,dn)}
+function stat(sec,team,dn){const p=posS(sec,team,dn);return p<4?'D':p<8?'F':p<12?'N':'F'}
+function teamOnS(sec,shift,dn){return TEAMS.find(x=>stat(sec,x,dn)===shift)}
+const mySec=()=>data.sector||'op';
+const SECS=['op','man'];
+const SEC_IC={op:'🏭',man:'🔧'};
+function fmt(dn){const d=ymd(dn);return String(d.d).padStart(2,'0')+'/'+String(d.m+1).padStart(2,'0')}
+function fmtL(dn){const d=ymd(dn);return WD()[d.w]+', '+fmt(dn)+'/'+d.y}
+const wdf = dn => WD()[ymd(dn).w]+' '+fmt(dn);
+
+/* ===================== FERIADOS ===================== */
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return dayNum(y,mo-1,da)}
+const holCache={};
+// devolve {data ISO: código do feriado}; o nome sai no idioma escolhido
+function nationalHolidays(y){
+  if(holCache[y])return holCache[y];
+  const r={};
+  [['01-01','ny'],['04-21','tir'],['05-01','lab'],['09-07','ind'],['10-12','apa'],['11-02','fin'],['11-15','rep'],['11-20','cn'],['12-25','xmas']].forEach(([md,k])=>r[y+'-'+md]=k);
+  const e=easter(y);
+  r[iso(e-48)]='carn';r[iso(e-47)]='carn';r[iso(e-2)]='gf';r[iso(e+60)]='cc';
+  return holCache[y]=r;
+}
+function holidayName(dn){
+  const k=iso(dn);
+  const c=data.holidays.find(h=>h.date===k);
+  if(c)return c.name;
+  const code=nationalHolidays(ymd(dn).y)[k];
+  return code?t('hol')[code]:'';
+}
+
+/* ===================== DADOS ===================== */
+const KEY='escala-operacao-v1';
+function blank(){return {myTeam:null,teams:{},holidays:[],vacations:[],tasks:[],handovers:[]}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d)return Object.assign(blank(),d)}catch(e){}return blank()}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+let data=load();
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function upsert(list,obj){const a=data[list];const i=a.findIndex(x=>x.id===obj.id);if(i>=0)a[i]=obj;else a.push(obj);save()}
+function removeItem(list,id){if(!confirm(t('delQ')))return;if(list==='handovers'){clearTimeout(hoTimer);hoTimer=null;hoCur=null}data[list]=data[list].filter(x=>x.id!==id);save();closeSheet();render()}
+
+// Férias pessoais (só do dono do aparelho)
+function myVacation(dn){const k=iso(dn);return data.vacations.find(v=>v.start<=k&&k<=v.end)}
+function vacWorkDays(v){let n=0;if(!data.myTeam)return 0;for(let d=fromIso(v.start);d<=fromIso(v.end);d++)if(stat(mySec(),data.myTeam,d)!=='F')n++;return n}
+// Configuração de cada turma: supervisores e sala de controle (pode ter mais de um).
+// Operação usa data.teams; manutenção usa data.mteams (só supervisores).
+const ROLE_IC={sup:'👔',sala:'🖥️'};
+const ROLE = r => t('role')[r];
+const rolesOf = sec => sec==='man'?['sup']:['sup','sala'];
+function teamCfg(x,sec){const k=sec==='man'?'mteams':'teams';if(!data[k])data[k]={};const c=data[k][x]=data[k][x]||{};rolesOf(sec).forEach(r=>{if(!c[r])c[r]=[]});return c}
+function teamPeopleHtml(x,compact,sec){
+  const c=teamCfg(x,sec),rs=rolesOf(sec).filter(r=>c[r].length);
+  if(!rs.length)return compact?'':`<div class="sub">${t('notConfigured')}</div>`;
+  return rs.map(r=>`<div class="ppl"><span class="pk">${ROLE_IC[r]} ${c[r].length>1?ROLE(r).pl:ROLE(r).t}:</span> ${c[r].map(esc).join(', ')}</div>`).join('');
+}
+// TAREFAS programadas (pessoais, ficam no aparelho). repeat: none|daily|weekly|monthly|cycle(16 dias)
+// done = lista de datas (ISO) em que a tarefa foi marcada como feita
+function occursOn(k,dn){const d0=fromIso(k.date);if(dn<d0)return false;const g=dn-d0;
+  return k.repeat==='daily'?true:k.repeat==='weekly'?g%7===0:k.repeat==='monthly'?ymd(dn).d===ymd(d0).d:k.repeat==='cycle'?g%16===0:g===0}
+// Dois tipos: 'future' (programada: data/hora/repetição) e 'daily' (rotina de todo turno,
+// pode entrar no relatório de troca de turno). Tarefas antigas sem tipo = 'future'.
+const isDaily=k=>k.type==='daily';
+function tasksOn(dn){return data.tasks.filter(k=>!isDaily(k)&&occursOn(k,dn)).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'))}
+function dailyFor(dn){return data.tasks.filter(k=>isDaily(k)&&fromIso(k.date)<=dn)}
+function taskDone(k,dn){return (k.done||[]).includes(iso(dn))}
+function nextOcc(k,from){for(let d=from;d<from+400;d++)if(occursOn(k,d))return d;return null}
+// ctx: '' (só atualiza a tela) | 'day' (reabre o detalhe do dia) | 'ho' (reabre a troca de turno)
+function toggleTask(id,dn,ctx){
+  if(ctx==='ho')hoSave();
+  const k=data.tasks.find(x=>x.id===id);if(!k)return;k.done=k.done||[];const s=iso(dn),i=k.done.indexOf(s);if(i>=0)k.done.splice(i,1);else k.done.push(s);save();render();
+  if(ctx==='day')openDay(dn);else if(ctx==='ho'&&hoCur)openHandover(hoCur.date,hoCur.shift);
+}
+function taskRow(k,dn,ctx){const dn2=taskDone(k,dn);return `<button class="task ${dn2?'done':''}" onclick="toggleTask('${k.id}',${dn},'${ctx||''}')"><span class="ck">${dn2?'✓':''}</span><span class="tk">${k.time?`<b>${k.time}</b> · `:''}${esc(k.title)}${!isDaily(k)&&k.repeat!=='none'?' <span class="rp">🔁</span>':''}</span></button>`}
+const pad2=n=>String(n).padStart(2,'0');
+// Link para criar o lembrete no Google Agenda (dá aviso no celular)
+function gcalLink(k){
+  const d=k.date.replace(/-/g,'');let dates;
+  if(k.time){const [h,m]=k.time.split(':').map(Number),e=h*60+m+30;let eh=Math.floor(e/60),ed=d;if(eh>=24){eh-=24;ed=iso(fromIso(k.date)+1).replace(/-/g,'')}
+    dates=`${d}T${pad2(h)}${pad2(m)}00/${ed}T${pad2(eh)}${pad2(e%60)}00`}
+  else dates=d+'/'+iso(fromIso(k.date)+1).replace(/-/g,'');
+  const rr={daily:'RRULE:FREQ=DAILY',weekly:'RRULE:FREQ=WEEKLY',monthly:'RRULE:FREQ=MONTHLY',cycle:'RRULE:FREQ=DAILY;INTERVAL=16'}[k.repeat];
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(k.title)+'&dates='+dates+(k.note?'&details='+encodeURIComponent(k.note):'')+(rr?'&recur='+encodeURIComponent(rr):'');
+}
+// Manutenção: com qual turma de operação ela está trabalhando nesse dia
+function opPartner(x,dn){const s=stat('man',x,dn);return s==='F'?null:teamOn(s,dn)}
+
+/* ===================== NAVEGAÇÃO ===================== */
+let view='hoje', calM=null, eqM=null, regTab='handover', eqSec=null;
+const secTabs=(cur,varName)=>`<div class="segs">${SECS.map(k=>`<button class="${cur===k?'on':''}" onclick="${varName}='${k}';render('f')">${SEC_IC[k]} ${t('sec')[k]}</button>`).join('')}</div>`;
+(function(){const d=ymd(todayDn());calM={y:d.y,m:d.m};eqM={y:d.y,m:d.m}})();
+const VORD=['hoje','cal','eq','reg'];
+// troca de aba: desliza para a direita/esquerda conforme a posição da aba
+function go(v){const d=VORD.indexOf(v)-VORD.indexOf(view);view=v;render(d>0?'r':d<0?'l':'f');window.scrollTo(0,0)}
+function render(anim){
+  document.documentElement.lang=LANG==='en'?'en':'pt-BR';
+  document.title=t('title');
+  document.getElementById('htitle').textContent=t('title');
+  document.getElementById('hsub').textContent=t('subtitle');
+  document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.querySelector('.nl').textContent=t('nav')[b.dataset.v]});
+  document.getElementById('teamChip').textContent='⚙️ '+(data.sector?t('secS')[data.sector]+' · ':'')+t('team')+' '+(data.myTeam||'?');
+  const el=document.getElementById('view');
+  el.classList.remove('a-r','a-l','a-f');       // sem animação em atualizações comuns
+  el.innerHTML=view==='hoje'?vHoje():view==='cal'?vCal():view==='eq'?vEq():vReg();
+  if(anim){void el.offsetWidth;el.classList.add('a-'+anim)}
+}
+
+/* ===================== HOJE ===================== */
+function vHoje(){
+  const td=todayDn(),h=new Date().getHours(),T=t('team');
+  const cur=h<6?{dn:td-1,s:'N'}:h<18?{dn:td,s:'D'}:{dn:td,s:'N'};
+  const sec=mySec(),oth=sec==='op'?'man':'op',ORD=[sec,oth];
+  const SS=k=>SEC_IC[k]+' '+t('secS')[k];
+  let o=`<button class="card hero ${cur.s}" onclick="openDay(${cur.dn})"><div class="lbl">${t('onDutyNow')} · ${SNI(cur.s)} ${HR(cur.s)}</div>
+    <div class="hs">${ORD.map(k=>{const x=teamOnS(k,cur.s,cur.dn);return `<div><div class="hsl">${SEC_IC[k]} ${t('sec')[k]}</div><div class="big2">${T} ${x}</div>${teamPeopleHtml(x,true,k)}</div>`}).join('')}</div></button>`;
+  o+='<div class="row2">'+['D','N'].map(s=>`<button class="card mini ${s}" onclick="openDay(${td})"><div class="lbl">${t('todayLbl',SN(s))} ${ICO[s]}</div><div class="mid">${T} ${teamOnS(sec,s,td)}</div><div class="sub">${SS(sec)} · ${HR(s)}</div><div class="sub">${SS(oth)}: <b>${T} ${teamOnS(oth,s,td)}</b></div><div class="small">${teamPeopleHtml(teamOnS(sec,s,td),true,sec)}</div></button>`).join('')+'</div>';
+  const my=data.myTeam,ST=d=>stat(sec,my,d);
+  if(my){
+    const st=ST(td),p=posS(sec,my,td)%4+1,vac=myVacation(td);
+    let info;
+    if(vac){
+      let r=fromIso(vac.end)+1;while(ST(r)==='F'||myVacation(r))r++;
+      info=`<div class="mine"><span class="pill V">${t('onVac')} 🏖️</span><span>${t('until',fmt(fromIso(vac.end)))}</span></div>
+      <div class="sub">${t('backToWork',SNI(ST(r)),wdf(r),r-td)}</div>`;
+    }else{
+      let n=td+1;while(ST(n)===st)n++;
+      const nv=data.vacations.filter(v=>v.start>iso(td)).sort((a,b)=>a.start.localeCompare(b.start))[0];
+      info=`<div class="mine"><span class="pill ${st}">${SNI(st)}${st!=='F'?' '+HR(st):''}</span><span>${t('dayOf',p)}</span></div>
+      ${sec==='man'&&st!=='F'?`<div class="sub">🤝 ${t('workingWith',opPartner(my,td))}</div>`:''}
+      <div class="sub">${t('next',SNI(ST(n)),wdf(n),n-td)}</div>
+      ${nv?`<div class="sub">${t('vacIn',fromIso(nv.start)-td,fmt(fromIso(nv.start)),fmt(fromIso(nv.end)))}</div>`:''}`;
+    }
+    o+=`<section class="card"><div class="lbl">${t('myTeam')} · ${SEC_IC[sec]} ${t('sec')[sec]} ${my}</div>${info}
+      <div class="strip">${Array.from({length:16},(_,i)=>{const d=td+i,s=myVacation(d)?'V':ST(d);return `<button class="sc ${s} ${i===0?'today':''}" onclick="openDay(${d})">${WD()[ymd(d).w]}<b>${s==='V'?'🏖️':s==='F'?LT('F'):ICO[s]}</b>${fmt(d).slice(0,2)}</button>`}).join('')}</div></section>`;
+  }
+  // tarefas de hoje (ou a próxima, se hoje não tiver)
+  // diárias contam pelo turno (o turno da noite que passa da meia-noite continua no mesmo dia)
+  const tk=tasksOn(td),csd=curShift().dn,dl=dailyFor(csd);
+  if(tk.length||dl.length){const nd=tk.filter(k=>taskDone(k,td)).length+dl.filter(k=>taskDone(k,csd)).length;
+    o+=`<section class="card"><div class="shh"><div class="lbl">${t('todayTasks')}</div><span class="sub" style="margin:0">${t('doneOf',nd,tk.length+dl.length)}</span></div>
+      ${dl.length?`<div class="tsub">🔁 ${t('typeDaily')}</div>${dl.map(k=>taskRow(k,csd)).join('')}`:''}
+      ${tk.length?`<div class="tsub">📅 ${t('typeFuture')}</div>${tk.map(k=>taskRow(k,td)).join('')}`:''}
+      <button class="linkb" onclick="formTask()">${t('addTask')}</button></section>`}
+  if(!tk.length){let nx=null;for(const k of data.tasks.filter(x=>!isDaily(x))){const d=nextOcc(k,td+1);if(d!==null&&(!nx||d<nx.d||(d===nx.d&&(k.time||'99')<(nx.k.time||'99'))))nx={k,d}}
+    if(nx)o+=`<button class="card" onclick="openDay(${nx.d})"><div class="lbl">${t('nextTask')}</div><div style="margin-top:4px">✅ <b>${esc(nx.k.title)}</b></div><div class="sub">${wdf(nx.d)}${nx.k.time?' · '+nx.k.time:''}</div></button>`}
+  const hn=holidayName(td);
+  if(hn)o+=`<section class="card"><div class="lbl">${t('today')}</div><div style="margin-top:8px">🎉 <b>${t('holiday')}:</b> ${esc(hn)}</div></section>`;
+  for(let d=td+1;d<td+120;d++){const n=holidayName(d);if(n){o+=`<button class="card" onclick="openDay(${d})"><div class="lbl">${t('nextHol')}</div><div style="margin-top:4px"><b>${esc(n)}</b> · ${fmtL(d)}</div><div class="sub">${SN('D')} ☀️ Op ${teamOnS('op','D',d)} / Man ${teamOnS('man','D',d)} · ${SN('N')} 🌙 Op ${teamOnS('op','N',d)} / Man ${teamOnS('man','N',d)}${my?` · ${t('you')}: ${SNI(ST(d))}`:''}</div></button>`;break}}
+  o+=`<a class="help-link" href="${waLink()}" target="_blank" rel="noopener">💬 ${t('helpShort')} ›</a>`;
+  return o;
+}
+
+/* ===================== MINHA ESCALA (CALENDÁRIO) ===================== */
+function vCal(){
+  const my=data.myTeam,sec=mySec();
+  if(!my)return `<div class="empty">${t('chooseTeam')}</div>`;
+  const status=(x,d)=>stat(sec,x,d),pos=(x,d)=>posS(sec,x,d);   // escala do meu setor
+  const {y,m}=calM,first=dayNum(y,m,1),days=new Date(Date.UTC(y,m+1,0)).getUTCDate(),td=todayDn();
+  let cnt={D:0,N:0,F:0,V:0};
+  let o=`<div class="calhead"><button class="navb" onclick="mv('cal',-1)">‹</button><h2>${t('mes')[m]} ${y}</h2><button class="navb" onclick="mv('cal',1)">›</button></div>
+  <div class="wk">${WD().map(w=>`<div>${w}</div>`).join('')}</div><div class="grid" id="swipe">`;
+  for(let i=0;i<ymd(first).w;i++)o+='<div class="blank"></div>';
+  for(let d=0;d<days;d++){
+    const dn=first+d,s=myVacation(dn)?'V':status(my,dn);cnt[s]++;
+    const hol=holidayName(dn),bi=pos(my,dn)%4+1;
+    o+=`<button class="cell ${s} ${dn===td?'today':''} ${hol?'hol':''}" onclick="openDay(${dn})"><span class="top"><span class="n">${d+1}</span><span class="bi">${s==='V'?'':bi+'/4'}</span></span><span class="s">${CI(s)}</span><span class="h">${s==='V'?t('cellVac'):s==='F'?t('cellOff'):sec==='man'?'Op '+opPartner(my,dn):s==='D'?'06–18':'18–06'}${hol?'<i class="dot d-hol"></i>':''}${tasksOn(dn).length?'<i class="dot d-task"></i>':''}</span></button>`;
+  }
+  // blocos do mês (sequências de dia/noite/folga)
+  const blocks=[];let cb=null;
+  for(let d=0;d<days;d++){const dn=first+d,s=myVacation(dn)?'V':status(my,dn);if(cb&&cb.s===s)cb.e=dn;else{cb={s,a:dn,e:dn};blocks.push(cb)}}
+  o+=`</div><div class="legend"><span><i class="pill D" style="padding:0 6px">D☀️</i> ${SN('D')} ${HR('D')}</span><span><i class="pill N" style="padding:0 6px">N🌙</i> ${SN('N')} ${HR('N')}</span><span><i class="pill F" style="padding:0 6px">${LT('F')}</i> ${SN('F')}</span><span><i class="pill V" style="padding:0 6px">🏖️</i> ${t('myVac')}</span><span><i class="dot d-hol"></i> ${t('holiday')}</span><span><i class="dot d-task"></i> ${t('tasksT')}</span><span>${t('blockDay')}</span></div>
+  <section class="card"><div class="lbl">${t('monthSummary')} · ${SEC_IC[sec]} ${t('sec')[sec]} ${my}</div>
+    <div class="stats"><div><b>${cnt.D}</b>${t('stD')} ☀️</div><div><b>${cnt.N}</b>${t('stN')} 🌙</div><div><b>${cnt.F}</b>${t('stF')} 🟢</div><div><b>${(cnt.D+cnt.N)*12}h</b>${t('stW')} ⏱️</div></div>
+    ${cnt.V?`<div class="sub">${t('vacDaysMonth',cnt.V)}</div>`:''}</section>
+  <section class="card"><div class="lbl">${t('monthDetails')}</div>${blocks.map(b=>{
+    const n=b.e-b.a+1,posN=b.s==='F'&&status(my,b.a-1)==='N';
+    let det=b.s==='D'?t('detD'):b.s==='N'?t('detN',fmt(b.e+1)):b.s==='F'?(posN?t('detFN',fmt(b.a)):t('detFD')):'';
+    if(sec==='man'&&(b.s==='D'||b.s==='N')){const ps=[];for(let d=b.a;d<=b.e;d++){const p=opPartner(my,d);if(!ps.includes(p))ps.push(p)}det+='<br>🤝 '+(ps.length>1?t('manBlock',ps[0],ps[1]):t('withOp',ps[0]))}
+    return `<button class="blk" onclick="openDay(${b.a})"><span class="pill ${b.s}">${SN(b.s)} ${ICO[b.s]}</span><span class="bd"><b>${n>1?t('range',fmt(b.a),fmt(b.e)):fmt(b.a)}</b> · ${t('days',n)}<span class="sub" style="display:block;margin:0">${det}</span></span></button>`}).join('')}</section>
+  <section class="card"><div class="shh"><div class="lbl">🎉 ${t('nextHols')}</div><button class="linkb" style="padding:0" onclick="openHolidays()">${t('seeAll')} ›</button></div>
+    ${holidayList().slice(0,4).map(holidayItem).join('')}
+    <button class="linkb" onclick="formHol()">${t('addHol')}</button></section>
+  <button class="sec" style="margin-bottom:10px" onclick="formVac()">${t('markVac')}</button>
+  <button class="sec" onclick="calM=(()=>{const d=ymd(todayDn());return{y:d.y,m:d.m}})();render()">${t('backToday')}</button>`;
+  return o;
+}
+function mv(which,d){const o=which==='cal'?calM:eqM;let m=o.m+d,y=o.y;if(m<0){m=11;y--}if(m>11){m=0;y++}o.m=m;o.y=y;render();
+  // desliza o mês na direção do toque/botão
+  const el=document.getElementById('swipe'),h=document.querySelector('.calhead h2'),c=d>0?'m-r':'m-l';
+  [el,h].forEach(x=>x&&x.classList.add(c))}
+
+/* ===================== TODAS AS TURMAS ===================== */
+function vEq(){
+  const sec=eqSec||mySec(),man=sec==='man',mine=x=>x===data.myTeam&&sec===mySec();
+  const {y,m}=eqM,first=dayNum(y,m,1),days=new Date(Date.UTC(y,m+1,0)).getUTCDate(),td=todayDn();
+  let o=secTabs(sec,'eqSec')+`<div class="calhead"><button class="navb" onclick="mv('eq',-1)">‹</button><h2>${t('mes')[m]} ${y}</h2><button class="navb" onclick="mv('eq',1)">›</button></div>
+  <table id="swipe"><thead><tr><th></th>${TEAMS.map(x=>`<th class="${mine(x)?'me':''}">${t('secS')[sec]} ${x}</th>`).join('')}</tr></thead><tbody>`;
+  for(let d=0;d<days;d++){
+    const dn=first+d,hol=holidayName(dn),mark=myVacation(dn)?' 🏖️':'';
+    o+=`<tr class="${dn===td?'today':''}" onclick="openDay(${dn})"><td class="dt ${hol?'hol':''}">${String(d+1).padStart(2,'0')} ${WD()[ymd(dn).w]}${mark}</td>${TEAMS.map(x=>{const s=stat(sec,x,dn);return `<td class="tc ${s} ${mine(x)?'me':''}">${LT(s)}${s==='F'?'':' '+ICO[s]}<small>${posS(sec,x,dn)%4+1}/4${man&&s!=='F'?' · Op '+opPartner(x,dn):''}</small></td>`}).join('')}</tr>`;
+  }
+  return o+`</tbody></table><div class="legend"><span>D ☀️ = ${SN('D')} ${HR('D')}</span><span>N 🌙 = ${SN('N')} ${HR('N')}</span><span>${LT('F')} = ${SN('F')}</span><span>${t('blockDay')}</span>${man?`<span>Op A = ${t('withOp','A')}</span>`:''}<span style="color:var(--hol)">${t('redHol')}</span></div>`;
+}
+
+/* ===================== REGISTROS ===================== */
+function vReg(){
+  // (a configuração das turmas fica em ⚙️ › Turmas, porque quase nunca muda)
+  const tabs=[['handover',t('tabHo'),''],['tasks',t('tabTasks'),data.tasks.length],['vacations',t('tabVac'),data.vacations.length]];
+  let o='<div class="segs">'+tabs.map(([k,l,n])=>`<button class="${regTab===k?'on':''}" onclick="regTab='${k}';render('f')">${l}${n!==''?' ('+n+')':''}</button>`).join('')+'</div>';
+  const today=iso(todayDn());
+  if(regTab==='handover'){
+    const cs=curShift(),sec=mySec(),tm=teamOnS(sec,cs.s,cs.dn),cur=hoFind(iso(cs.dn),cs.s,sec);
+    o+=`<section class="card ho-cur ${cs.s}"><div class="lbl">${t('hoCurrent')}</div>
+      <div class="mid" style="font-size:22px;margin-top:2px">${SN(cs.s)} ${ICO[cs.s]} · ${wdf(cs.dn)}</div>
+      <div class="sub">${SEC_IC[sec]} ${t('sec')[sec]} · ${t('team')} ${tm} · ${HR(cs.s)}${cur?` · <b>${t('hoStarted')}</b>`:''}</div>
+      <button class="pri" style="margin-top:12px" onclick="openHandover()">✏️ ${cur?t('hoContinue'):t('hoFill')}</button>
+      <div class="hint" style="margin-top:8px">${t('hoHint')}</div></section>`;
+    const sk=h=>h.date+(h.shift==='N'?'2':'1');
+    const l=data.handovers.filter(h=>h.sec===sec&&h!==cur).sort((a,b)=>sk(b).localeCompare(sk(a)));
+    o+=`<div class="grp lbl">${t('hoHistory')}</div>`;
+    if(!l.length)o+=`<div class="empty">${t('hoEmpty')}</div>`;
+    l.forEach(h=>{const dn=fromIso(h.date),first=HO_FIELDS.map(f=>(h[f.k]||'').trim().split('\n')[0]).find(Boolean)||'';
+      o+=`<div class="card item"><span class="ic">🗒️</span><div class="bd" onclick="openHandover('${h.date}','${h.shift}')"><div class="tt">${wdf(dn)} · ${SN(h.shift)} ${ICO[h.shift]}</div>
+        <div class="sub" style="margin:0">${t('team')} ${teamOnS(sec,h.shift,dn)}${first?' · '+esc(first.length>60?first.slice(0,60)+'…':first):''}</div></div>
+        <div class="acts"><button class="ib" onclick="hoCopyById('${h.id}')" title="${t('hoCopy')}">📋</button><a class="ib" href="${waShare(hoText(h))}" target="_blank" rel="noopener" title="${t('hoSendWa')}">💬</a></div></div>`});
+  }
+  if(regTab==='tasks'){
+    o+=`<div class="row2" style="margin:6px 0"><button class="add" style="margin:0" onclick="formTask(null,null,'daily')">+ 🔁 ${t('typeDaily1')}</button><button class="add" style="margin:0" onclick="formTask(null,null,'future')">+ 📅 ${t('typeFuture1')}</button></div>`;
+    const td=todayDn(),cs=curShift(),dl=dailyFor(cs.dn).concat(data.tasks.filter(k=>isDaily(k)&&fromIso(k.date)>cs.dn));
+    // diárias: checklist do turno atual
+    o+=`<div class="grp lbl">🔁 ${t('typeDaily')} · ${SN(cs.s)} ${ICO[cs.s]} ${fmt(cs.dn)}</div><div class="hint" style="margin:2px 2px 0">${t('dailyHint')}</div>`;
+    if(!dl.length)o+=`<div class="empty">${t('noDaily')}</div>`;
+    else o+=`<div class="card" style="padding:4px 10px">${dl.map(k=>`<div class="twrap">${taskRow(k,cs.dn)}<button class="ib" onclick="formTask(null,'${k.id}')">✏️</button></div>`).join('')}</div>`;
+    // futuras: ordena pela próxima data; as únicas já passadas vão para o fim
+    o+=`<div class="grp lbl">📅 ${t('typeFuture')}</div><div class="hint" style="margin:2px 2px 0">${t('tasksHint')}</div>`;
+    const l=data.tasks.filter(k=>!isDaily(k)).map(k=>({k,n:nextOcc(k,td)})).sort((a,b)=>(a.n??1e9)-(b.n??1e9)||(a.k.time||'99').localeCompare(b.k.time||'99'));
+    if(!l.length)o+=`<div class="empty">${t('noTasks')}</div>`;
+    l.forEach(({k,n})=>{const past=n===null,dn=past?fromIso(k.date):n,done=taskDone(k,dn);
+      o+=`<div class="card item ${past||done?'past':''}"><span class="ic">${done?'✅':'📋'}</span><div class="bd" onclick="formTask(null,'${k.id}')"><div class="tt">${esc(k.title)}</div>
+        <div>${k.repeat==='none'?wdf(dn):t('nextOn',wdf(dn))}${k.time?' · '+k.time:''}</div>
+        <div class="sub">${k.repeat!=='none'?'🔁 '+t('rep')[k.repeat]:t('rep').none}${k.note?' · '+esc(k.note):''}</div></div>
+        <div class="acts"><a class="ib" href="${gcalLink(k)}" target="_blank" rel="noopener" title="${t('addCal')}">📅</a><button class="ib" onclick="removeItem('tasks','${k.id}')">🗑️</button></div></div>`});
+  }
+  if(regTab==='vacations'){
+    o+=`<button class="add" onclick="formVac()">${t('addVac')}</button><div class="hint" style="margin:4px 2px">${t('vacHint')}</div>`;
+    const l=[...data.vacations].sort((a,b)=>a.start.localeCompare(b.start));
+    if(!l.length)o+=`<div class="empty">${t('noVac')}</div>`;
+    l.forEach(v=>{const a=fromIso(v.start),b=fromIso(v.end),td=todayDn();const st=v.end<today?t('vDone'):v.start<=today?t('vNow',b-td+1):t('vStarts',a-td);
+      o+=`<div class="card item ${v.end<today?'past':''}"><span class="ic">🏖️</span><div class="bd" onclick="formVac(null,'${v.id}')"><div class="tt">${t('vTitle',fmt(a)+'/'+ymd(a).y,fmt(b)+'/'+ymd(b).y)}</div><div>${t('calDays',b-a+1)}${data.myTeam?' · '+t('covered',vacWorkDays(v)):''}</div><div class="sub">${st}${v.note?' · '+esc(v.note):''}</div></div><button class="ib" onclick="removeItem('vacations','${v.id}')">🗑️</button></div>`});
+  }
+  return o;
+}
+
+/* ===================== FERIADOS (ficam em Minha escala) ===================== */
+// lista de feriados de hoje em diante (este ano e o próximo) + os cadastrados pela pessoa
+function holidayList(){
+  const today=iso(todayDn()),y=ymd(todayDn()).y,all=[];
+  [y,y+1].forEach(yy=>Object.entries(nationalHolidays(yy)).forEach(([d,k])=>all.push({date:d,name:t('hol')[k],nat:true})));
+  data.holidays.forEach(h=>all.push(h));
+  return all.filter(h=>h.date>=today||!h.nat).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function holidayItem(h){
+  const dn=fromIso(h.date),today=iso(todayDn()),sec=mySec(),my=data.myTeam;
+  return `<div class="hol-i ${h.date<today?'past':''}"><span class="ic">${h.nat?'🇧🇷':'📌'}</span><div class="bd" onclick="openDay(${dn})"><div class="tt">${esc(h.name)}</div>
+    <div class="sub" style="margin:0">${fmtL(dn)}${my?` · ${t('you')}: ${myVacation(dn)?SN('V')+' 🏖️':SNI(stat(sec,my,dn))}`:''}</div></div>
+    ${h.nat?'':`<button class="ib" onclick="removeItem('holidays','${h.id}')">🗑️</button>`}</div>`;
+}
+function openHolidays(){
+  sheet(`<h2>🎉 ${t('tabHol').replace(/^\S+\s/,'')}</h2><button class="add" onclick="formHol()">${t('addHol')}</button>
+    <div class="card" style="padding:4px 14px">${holidayList().map(holidayItem).join('')}</div>
+    <div class="btns"><button class="sec" onclick="closeSheet()">${t('close')}</button></div>`);
+}
+
+/* ===================== FOLHA (DETALHE / FORMULÁRIOS) ===================== */
+function sheet(html){
+  const s=document.getElementById('sheet'),was=s.classList.contains('open');
+  s.classList.toggle('still',was);              // já aberta (ex.: trocar opção nas configs): sem re-animar
+  const top=s.scrollTop;s.innerHTML='<div class="grab"></div>'+html;
+  document.getElementById('ov').classList.add('on');
+  // só abre se ninguém fechou a janela nesse meio-tempo
+  if(was)s.scrollTop=top;else{s.scrollTop=0;requestAnimationFrame(()=>{if(document.getElementById('ov').classList.contains('on'))s.classList.add('open')})}
+}
+function closeSheet(){if(hoTimer)hoSave();document.getElementById('sheet').classList.remove('open','still');document.getElementById('ov').classList.remove('on')}
+
+function openDay(dn){
+  const hol=holidayName(dn),my=data.myTeam,T=t('team');
+  let h=`<h2>${fmtL(dn)}</h2>${hol?`<div class="hol-b">🎉 ${esc(hol)}</div>`:''}`;
+  const sec=mySec(),ORD=[sec,sec==='op'?'man':'op'];
+  if(my&&!myVacation(dn)){const s=stat(sec,my,dn);h+=`<div class="mine" style="font-size:15px"><span class="pill ${s}">${t('youTeam',t('secS')[sec]+' '+my,SNI(s))}</span><span>${t('ordOf4',posS(sec,my,dn)%4+1)}</span></div>`}
+  for(const s of ['D','N']){
+    const times=s==='D'?t('timesD'):t('timesN',wdf(dn),wdf(dn+1));
+    h+=`<div class="shift ${s}"><div class="shh"><b>${SN(s)} ${ICO[s]}</b></div><div class="sub">${times}</div>`;
+    for(const k of ORD){
+      const tm=teamOnS(k,s,dn),bi=posS(k,tm,dn)%4+1;
+      const extra=bi===1?t(s==='D'?'firstD':'firstN'):bi===4?t(s==='D'?'lastD':'lastN'):'';
+      h+=`<div class="secb"><div class="shh"><b>${SEC_IC[k]} ${t('sec')[k]} · ${T} ${tm}</b><span class="bi2">${t('ordOf4',bi)}</span></div>${extra?`<div class="sub">${extra}</div>`:''}${teamPeopleHtml(tm,true,k)}</div>`;
+    }
+    h+='</div>';
+  }
+  h+=`<div class="shift F"><b>${SN('F')} 🟢</b>${ORD.map(k=>TEAMS.filter(x=>stat(k,x,dn)==='F').map(x=>{const p=posS(k,x,dn),fi=p%4+1;let n=dn;while(stat(k,x,n)==='F')n++;const ns=stat(k,x,n),posN=p>=12;
+    return `<div class="sub" style="margin-top:6px"><b>${SEC_IC[k]} ${t('secS')[k]} · ${T} ${x}</b> · ${t('offDay',fi)}${posN&&fi===1?t('leftNight'):''}<br>${t('backOn',SNI(ns),wdf(n),ns==='N'?t('h18'):t('h06'))}</div>`}).join('')).join('')}</div>`;
+  const va=myVacation(dn);
+  if(va)h+=`<div class="shift V" onclick="formVac(null,'${va.id}')"><b>${t('youOnVac')}</b><div class="sub">${t('range',fmt(fromIso(va.start)),fmt(fromIso(va.end)))}${va.note?' · '+esc(va.note):''}</div></div>`;
+  const tk=tasksOn(dn);
+  if(tk.length)h+=`<div class="shift T"><b>✅ ${t('tasksT')}</b><div class="hint" style="margin:2px 0 4px">${t('tapToDone')}</div>${tk.map(k=>taskRow(k,dn,'day')).join('')}</div>`;
+  h+=`<div class="btns"><button class="pri" onclick="formTask('${iso(dn)}')">${t('addTaskDay')}</button>${va?'':`<button class="sec" onclick="formVac('${iso(dn)}')">${t('vacStartsHere')}</button>`}<button class="sec" onclick="formHol('${iso(dn)}')">${t('markHol')}</button></div>`;
+  sheet(h);
+}
+
+function bindForm(fn){const f=document.getElementById('f');f.onsubmit=e=>{e.preventDefault();const v=Object.fromEntries(new FormData(f));if(fn(v)!==false){save();closeSheet();render()}}}
+
+/* ===== Configuração das turmas (⚙️ › Turmas): supervisores e sala de controle ===== */
+function openTeamsCfg(sec){
+  sec=sec||mySec();
+  let h=`<button class="backb" onclick="openSettings()">‹ ${t('settings')}</button><h2>${t('teamsCfgT')}</h2>
+    <div class="segs">${SECS.map(k=>`<button class="${sec===k?'on':''}" onclick="openTeamsCfg('${k}')">${SEC_IC[k]} ${t('sec')[k]}</button>`).join('')}</div>
+    <div class="hint" style="margin:4px 2px">${sec==='man'?t('teamsHintMan'):t('teamsHint')}</div>`;
+  TEAMS.forEach(tm=>{
+    const c=teamCfg(tm,sec);
+    h+=`<section class="card"><div class="tmh"><b>${t('secS')[sec]} · ${t('team')} ${tm}</b>${tm===data.myTeam&&sec===mySec()?`<span class="badge b-me">${t('mine')}</span>`:''}</div>`+
+      rolesOf(sec).map(r=>`<div class="field">${ROLE_IC[r]} ${ROLE(r).pl}<div class="people">${c[r].map((n,i)=>`<button class="pp chipb" onclick="formPerson('${tm}','${r}',${i},'${sec}')">${esc(n)} ✏️</button>`).join('')}<button class="pp addp" onclick="formPerson('${tm}','${r}',undefined,'${sec}')">${t('add')}</button></div></div>`).join('')+'</section>';
+  });
+  h+=`<div class="btns"><button class="pri" onclick="closeSheet()">${t('close')}</button></div>`;
+  sheet(h);
+}
+function formPerson(tm,r,i,sec){
+  sec=sec||'op';
+  const c=teamCfg(tm,sec),ed=i!==undefined&&i!==null;
+  sheet(`<button class="backb" onclick="openTeamsCfg('${sec}')">‹ ${t('teamsCfgT')}</button><h2>${ed?t('edit'):t('addW')} · ${ROLE_IC[r]} ${ROLE(r).t}</h2><div class="sub" style="margin-top:-6px">${SEC_IC[sec]} ${t('sec')[sec]} · ${t('team')} ${tm}</div><form id="f">
+    <label>${t('name')}<input name="name" value="${ed?esc(c[r][i]):''}" required autocomplete="off"></label>
+    <button class="pri" style="margin-top:8px">${t('save')}</button>
+    ${ed?`<button type="button" class="sec danger" style="margin-top:8px" onclick="removePerson('${tm}','${r}',${i},'${sec}')">${t('remove')}</button>`:''}</form>`);
+  // ao salvar, volta para a lista das turmas
+  document.getElementById('f').onsubmit=e=>{e.preventDefault();const n=new FormData(e.target).get('name').trim();if(!n)return;if(ed)c[r][i]=n;else c[r].push(n);save();render();openTeamsCfg(sec)};
+}
+function removePerson(tm,r,i,sec){const c=teamCfg(tm,sec);if(!confirm(t('removeQ',c[r][i],tm)))return;c[r].splice(i,1);save();render();openTeamsCfg(sec)}
+
+function formVac(date,id){
+  const s0=date?fromIso(date):todayDn();
+  const o=id?{...data.vacations.find(x=>x.id===id)}:{id:uid(),start:iso(s0),end:iso(s0+29),note:''};
+  sheet(`<h2>${id?t('vacEditT'):t('vacNewT')}</h2><form id="f">
+    <label>${t('firstDay')}<input type="date" name="start" value="${o.start}" required></label>
+    <label>${t('lastDay')}<input type="date" name="end" value="${o.end}" required></label>
+    <div class="hint" id="vinfo"></div>
+    <label>${t('note')}<textarea name="note" placeholder="${t('optional')}">${esc(o.note)}</textarea></label>
+    <button class="pri">${t('saveVac')}</button>
+    ${id?`<button type="button" class="sec danger" style="margin-top:8px" onclick="removeItem('vacations','${id}')">${t('del')}</button>`:''}</form>`);
+  const f=document.getElementById('f');
+  const upd=()=>{const a=f.start.value,b=f.end.value,el=document.getElementById('vinfo');if(!a||!b||b<a){el.textContent=b&&a&&b<a?t('endBefore'):'';return}
+    el.textContent=t('calDays',fromIso(b)-fromIso(a)+1)+(data.myTeam?' · '+t('coveredW',vacWorkDays({start:a,end:b})):'')};
+  f.oninput=upd;upd();
+  bindForm(v=>{if(v.end<v.start){alert(t('endBefore'));return false}upsert('vacations',{id:o.id,start:v.start,end:v.end,note:v.note.trim()})});
+}
+
+/* ===================== TROCA DE TURNO (relatório) ===================== */
+// Para adicionar um campo novo: inclua aqui {k:'chave',ic:'emoji',list:true/false}
+// e o nome dele em ho:{...} nos dois idiomas. list:true = um item por linha (vira "• item").
+const HO_FIELDS=[
+  {k:'attention',ic:'⚠️',list:true},
+  {k:'maint',ic:'🔧',list:true},
+  {k:'cont',ic:'🔄',list:true},
+  {k:'obs',ic:'📝',list:false},
+];
+let hoCur=null,hoTimer=null;
+function curShift(){const td=todayDn(),h=new Date().getHours();return h<6?{dn:td-1,s:'N'}:h<18?{dn:td,s:'D'}:{dn:td,s:'N'}}
+function hoFind(date,shift,sec){return data.handovers.find(h=>h.date===date&&h.shift===shift&&h.sec===sec)}
+function hoHasContent(h){return HO_FIELDS.some(f=>(h[f.k]||'').trim())}
+// monta o texto no formato do WhatsApp (*negrito*), sem emojis
+function hoText(h){
+  const dn=fromIso(h.date),sec=h.sec,tm=teamOnS(sec,h.shift,dn);
+  const c=teamCfg(tm,sec);
+  const L=[`*${t('hoTitleUp')}*`,`${fmtL(dn)} · ${SN(h.shift)} (${HR(h.shift)})`,`${t('sec')[sec]} · ${t('team')} ${tm}`];
+  if(c.sup&&c.sup.length)L.push(`${c.sup.length>1?ROLE('sup').pl:ROLE('sup').t}: ${c.sup.join(', ')}`);
+  if(c.sala&&c.sala.length)L.push(`${ROLE('sala').t}: ${c.sala.join(', ')}`);
+  // tarefas diárias: entram só as marcadas como feitas, sem escrever "feito" (vão antes da observação)
+  const dts=dailyFor(dn);
+  const taskBlock=()=>{if(!dts.length)return;const dn2=dts.filter(k=>taskDone(k,dn));L.push('',`*${t('hoTasks')}*`);
+    if(dn2.length)dn2.forEach(k=>L.push('• '+k.title));else L.push('• '+t('hoNothing'))};
+  for(const f of HO_FIELDS){
+    if(f.k==='obs')taskBlock();
+    const v=(h[f.k]||'').trim();L.push('',`*${t('ho')[f.k].t}*`);
+    if(!v)L.push(f.list?'• '+t('hoNothing'):t('hoNone'));
+    else if(f.list)v.split('\n').map(x=>x.trim().replace(/^[-•*]\s*/,'')).filter(Boolean).forEach(x=>L.push('• '+x));
+    else L.push(v);
+  }
+  if(!HO_FIELDS.some(f=>f.k==='obs'))taskBlock();
+  return L.join('\n');
+}
+const waShare=s=>'https://wa.me/?text='+encodeURIComponent(s);
+async function copyText(s){
+  try{await navigator.clipboard.writeText(s);return true}catch(e){
+    const ta=document.createElement('textarea');ta.value=s;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.select();
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok}
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2600)}
+async function hoCopyById(id){const h=id?data.handovers.find(x=>x.id===id):hoCur;if(!h)return;toast(await copyText(hoText(h))?t('hoCopied'):t('hoCopyFail'))}
+
+function openHandover(date,shift){
+  const sec=mySec(),cs=curShift();date=date||iso(cs.dn);shift=shift||cs.s;
+  const ex=hoFind(date,shift,sec);
+  hoCur=ex?{...ex}:{id:uid(),date,shift,sec};
+  HO_FIELDS.forEach(f=>{if(hoCur[f.k]==null)hoCur[f.k]=''});
+  const dn=fromIso(date),tm=teamOnS(sec,shift,dn);
+  sheet(`<h2>🗒️ ${t('hoTitle')}</h2>
+    <div class="row2"><label class="fl">${t('date')}<input type="date" id="hoDate" value="${date}"></label>
+      <div class="field fl">${t('hoShift')}<div class="seg2">${['D','N'].map(s=>`<label><input type="radio" name="hoS" value="${s}" ${shift===s?'checked':''}><span>${SN(s)} ${ICO[s]}</span></label>`).join('')}</div></div></div>
+    <div class="hint">${SEC_IC[sec]} ${t('sec')[sec]} · ${t('team')} ${tm} · ${HR(shift)}</div>
+    <form id="hoF" onsubmit="return false">${HO_FIELDS.map(f=>`<label>${f.ic} ${t('ho')[f.k].t}<textarea name="${f.k}" rows="${f.list?4:3}" placeholder="${t('ho')[f.k].ph}">${esc(hoCur[f.k])}</textarea></label>`).join('')}</form>
+    ${(()=>{const dts=dailyFor(dn);return `<div class="card" style="padding:10px 12px;margin-top:6px"><b>✅ ${t('hoTasks')}</b>
+      ${dts.length?`<div class="hint" style="margin:4px 0 0">${t('hoTasksHint')}</div>${dts.map(k=>taskRow(k,dn,'ho')).join('')}`:`<div class="hint" style="margin:4px 0 0">${t('hoNoDaily')}</div>`}
+      <button class="linkb" onclick="hoSave();formTask(null,null,'daily')">+ 🔁 ${t('typeDaily1')}</button></div>`})()}    <div class="saved" id="hoSaved">${ex&&ex.updated?t('hoSavedAt',ex.updated):''}</div>
+    <div class="lbl" style="margin-top:14px">${t('hoPreview')}</div>
+    <pre class="wa-prev" id="hoPrev"></pre>
+    <div class="btns"><button class="pri" onclick="hoCopyById()">📋 ${t('hoCopy')}</button>
+      <a class="wa" id="hoWa" target="_blank" rel="noopener" style="margin-top:0">${WA_SVG} ${t('hoSendWa')}</a>
+      <button class="sec" onclick="closeSheet()">${t('close')}</button>
+      ${ex?`<button class="sec danger" onclick="removeItem('handovers','${ex.id}')">${t('del')}</button>`:''}</div>`);
+  const upd=()=>{const s=hoText(hoCur);document.getElementById('hoPrev').textContent=s;document.getElementById('hoWa').href=waShare(s)};
+  upd();
+  // salva sozinho enquanto a pessoa digita
+  document.getElementById('hoF').oninput=e=>{hoCur[e.target.name]=e.target.value;upd();clearTimeout(hoTimer);hoTimer=setTimeout(hoSave,500)};  // trocar data ou turno abre a troca de turno daquele turno
+  const sw=()=>{hoSave();const d=document.getElementById('hoDate').value,s=document.querySelector('input[name=hoS]:checked').value;if(d)openHandover(d,s)};
+  document.getElementById('hoDate').onchange=sw;document.querySelectorAll('input[name=hoS]').forEach(r=>r.onchange=sw);
+}
+function hoSave(){
+  clearTimeout(hoTimer);hoTimer=null;if(!hoCur)return;
+  const exists=data.handovers.some(x=>x.id===hoCur.id);
+  if(!exists&&!hoHasContent(hoCur))return;            // não cria troca de turno vazia
+  const n=new Date();hoCur.updated=pad2(n.getHours())+':'+pad2(n.getMinutes());
+  upsert('handovers',{...hoCur});
+  const el=document.getElementById('hoSaved');if(el)el.textContent=t('hoSavedAt',hoCur.updated);
+  if(view==='reg')render();
+}
+
+function formTask(date,id,type){
+  const o=id?{...data.tasks.find(x=>x.id===id)}:{id:uid(),type:type||'future',title:'',date:date||iso(todayDn()),time:'',repeat:'none',note:'',done:[]};
+  o.type=o.type||'future';
+  sheet(`<h2>${id?t('taskEditT'):t('taskNewT')}</h2><form id="f">
+    <div class="field">${t('taskType')}<div class="seg2">${[['future','📅',t('typeFuture1')],['daily','🔁',t('typeDaily1')]].map(([k,i,l])=>`<label><input type="radio" name="type" value="${k}" ${o.type===k?'checked':''}><span>${i} ${l}</span></label>`).join('')}</div></div>
+    <div class="hint" id="typeHint"></div>
+    <label>${t('taskTitle')}<input name="title" value="${esc(o.title)}" placeholder="${t('taskPh')}" required autocomplete="off"></label>
+    <div data-t="future">
+      <div class="row2"><label>${t('date')}<input type="date" name="date" value="${o.date}"></label>
+      <label>${t('time')}<input type="time" name="time" value="${o.time||''}"></label></div>
+      <div class="hint" id="tinfo"></div>
+      <label>${t('repeat')}<select name="repeat">${Object.entries(t('rep')).map(([k,l])=>`<option value="${k}" ${o.repeat===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    </div>    <label>${t('note')}<textarea name="note" placeholder="${t('optional')}">${esc(o.note)}</textarea></label>
+    <button class="pri">${t('saveTask')}</button>
+    ${id&&o.type==='future'?`<a class="sec cal-b" href="${gcalLink(o)}" target="_blank" rel="noopener">${t('addCal')}</a>`:''}
+    ${id?`<button type="button" class="sec danger" style="margin-top:8px" onclick="removeItem('tasks','${id}')">${t('del')}</button>`:''}</form>`);
+  const f=document.getElementById('f');
+  // mostra só os campos do tipo escolhido
+  const sync=()=>{const ty=f.querySelector('input[name=type]:checked').value;f.querySelectorAll('[data-t]').forEach(el=>el.hidden=el.dataset.t!==ty);f.date.required=ty==='future';f.title.placeholder=ty==='daily'?t('phDaily'):t('phFuture');document.getElementById('typeHint').textContent=ty==='daily'?t('dailyHint'):t('futureHint')};
+  // mostra que turno a pessoa está nesse dia, para ajudar a programar
+  const upd=()=>{sync();const el=document.getElementById('tinfo');if(!f.date.value||!data.myTeam){el.textContent='';return}
+    const dn=fromIso(f.date.value),s=myVacation(dn)?'V':stat(mySec(),data.myTeam,dn);el.textContent=`${t('you')}: ${SN(s)} ${ICO[s]}${s==='D'||s==='N'?' · '+HR(s):''}`};
+  f.oninput=upd;f.onchange=upd;upd();
+  bindForm(v=>{
+    if(v.type==='daily'){
+      // diária vale a partir do turno atual (ou mantém a data original se já existia)
+      const d0=o.type==='daily'&&id?o.date:iso(curShift().dn);
+      upsert('tasks',{id:o.id,type:'daily',title:v.title.trim(),date:d0,time:'',repeat:'none',note:v.note.trim(),done:o.done||[]});
+    }else upsert('tasks',{id:o.id,type:'future',title:v.title.trim(),date:v.date,time:v.time||'',repeat:v.repeat,note:v.note.trim(),done:o.done||[]});
+  });
+}
+
+function formHol(date,id){
+  const o=id?{...data.holidays.find(x=>x.id===id)}:{id:uid(),date:date||iso(todayDn()),name:''};
+  sheet(`<h2>${t('holTitle')}</h2><form id="f">
+    <label>${t('date')}<input type="date" name="date" value="${o.date}" required></label>
+    <label>${t('name')}<input name="name" value="${esc(o.name)}" placeholder="${t('holPh')}" required></label>
+    <div class="hint">${t('natAuto')}</div>
+    <button class="pri" style="margin-top:12px">${t('saveHol')}</button></form>`);
+  bindForm(v=>{upsert('holidays',{id:o.id,date:v.date,name:v.name.trim()})});
+}
+
+/* ===================== CONFIGURAÇÕES ===================== */
+/* ===================== CONTATO (dúvidas / melhorias) ===================== */
+const CONTACT={name:'Enzo Ornelas',wa:'5531971090646'};
+function waLink(){
+  const who=data.sector&&data.myTeam?t('secS')[data.sector]+' · '+t('team')+' '+data.myTeam:'';
+  return 'https://wa.me/'+CONTACT.wa+'?text='+encodeURIComponent(t('helpMsg',who));
+}
+function contactCard(){
+  return `<div class="contact"><div class="ct-h"><span class="ct-ic">💬</span><div><b>${t('helpT')}</b><div class="sub" style="margin:2px 0 0">${CONTACT.name}</div></div></div>
+    <div class="sub">${t('helpD')}</div>
+    <a class="wa" href="${waLink()}" target="_blank" rel="noopener">${WA_SVG} ${t('helpBtn')}</a></div>`;
+}
+const WA_SVG='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>';
+
+function setTheme(k,first){
+  const r=document.documentElement;r.classList.add('theming');   // troca de cor suave
+  localStorage.setItem('escala-tema',k);applyTheme();openSettings(first);
+  clearTimeout(setTheme._t);setTheme._t=setTimeout(()=>r.classList.remove('theming'),450);
+}
+function openSettings(first){
+  const F=first?'true':'false';
+  sheet(`<h2>${first?(data.sector?t('welcome'):t('welcomeSec')):t('settings')}</h2>
+    <div class="lbl">${t('sector')}</div>
+    <div class="themes langs">${SECS.map(k=>`<button class="${data.sector===k?'on':''}" onclick="data.sector='${k}';save();render();openSettings(${F})"><span>${SEC_IC[k]}</span>${t('sec')[k]}</button>`).join('')}</div>
+    ${data.sector?`<div class="lbl" style="margin-top:16px">${t('myTeam')} · ${t('sec')[data.sector]}</div>
+    <div class="teams">${TEAMS.map(x=>`<button class="${data.myTeam===x?'on':''}" onclick="data.myTeam='${x}';save();render();openSettings(${F})">${x}</button>`).join('')}</div>`:''}
+    <div class="lbl" style="margin-top:16px">${t('language')}</div>
+    <div class="themes langs">${[['pt','🇧🇷','Português'],['en','🇺🇸','English']].map(([k,i,l])=>`<button class="${LANG===k?'on':''}" onclick="setLang('${k}',${F})"><span>${i}</span>${l}</button>`).join('')}</div>
+    ${first&&!(data.myTeam&&data.sector)?'':`<div class="lbl" style="margin-top:16px">${t('appearance')}</div>
+    <div class="themes">${[['light','☀️',t('light')],['dark','🌙',t('dark')],['auto','📱',t('auto')]].map(([k,i,l])=>`<button class="${themePref()===k?'on':''}" onclick="setTheme('${k}',${F})"><span>${i}</span>${l}</button>`).join('')}</div>
+    <div class="hint" style="margin-top:6px">${t('autoHint')}</div>
+    <div class="lbl" style="margin-top:16px">${t('teamsLbl')}</div>
+    <button class="rowb" onclick="openTeamsCfg()"><span class="ct-ic" style="background:color-mix(in srgb,var(--acc) 16%,transparent)">👥</span><span><b>${t('teamsCfgT')}</b><span class="sub" style="display:block;margin:0">${t('teamsCfgD')}</span></span><span class="chev">›</span></button>
+    <div class="lbl" style="margin-top:16px">${t('helpT')}</div>
+    ${contactCard()}
+    <div class="btns"><button class="pri" onclick="closeSheet()">${t('close')}</button></div>
+    <div class="sub" style="margin-top:14px">${t('cycle')}</div>`}`);
+}
+
+/* ===================== GESTOS / INÍCIO ===================== */
+let tx=null,ty=null;
+document.addEventListener('touchstart',e=>{if(e.target.closest('#swipe')){tx=e.touches[0].clientX;ty=e.touches[0].clientY}else tx=null},{passive:true});
+document.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)mv(view==='eq'?'eq':'cal',dx<0?1:-1);tx=null},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+setInterval(()=>{if(view==='hoje'&&!document.getElementById('sheet').classList.contains('open'))render()},60000);
+
+// quem já usava o app antes da manutenção existir era da operação
+if(data.myTeam&&!data.sector){data.sector='op';save()}
+render();
+if(!data.myTeam||!data.sector)openSettings(true);
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
